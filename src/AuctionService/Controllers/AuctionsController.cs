@@ -3,6 +3,8 @@ using AuctionService.Dtos;
 using AuctionService.Entities;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +12,7 @@ namespace AuctionService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuctionsController(AuctionDbContext context, IMapper mapper) : ControllerBase
+public class AuctionsController(AuctionDbContext context, IMapper mapper, IPublishEndpoint publishEndpoint) : ControllerBase
 {
 
     [HttpGet]
@@ -51,25 +53,31 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
     public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto createAuctionDto)
     {
         var auction = mapper.Map<Auction>(createAuctionDto);
-
         context.Auctions.Add(auction);
-        await context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetAuctionById), new { id = auction.Id }, mapper.Map<AuctionDto>(auction));
+        var newAuction = mapper.Map<AuctionDto>(auction);
+        await publishEndpoint.Publish(mapper.Map<AuctionCreated>(newAuction));
+
+        bool result = await context.SaveChangesAsync() > 0;
+        if (!result) return BadRequest("Failed to create auction");
+
+        return CreatedAtAction(nameof(GetAuctionById), new { id = auction.Id }, newAuction);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
     {
-        var auction = await context.Auctions.FindAsync(id);
+        var auction = await context.Auctions.Include(x => x.Product).FirstOrDefaultAsync(x => x.Id == id);
 
-        if (auction == null)
-        {
-            return NotFound();
-        }
+        if (auction == null) return NotFound();
 
         mapper.Map(updateAuctionDto, auction);
-        await context.SaveChangesAsync();
+
+        var updatedAuction = mapper.Map<AuctionUpdated>(auction);
+        await publishEndpoint.Publish(updatedAuction);
+
+        bool result = await context.SaveChangesAsync() > 0;
+        if (!result) return BadRequest("Failed to update auction");
 
         return NoContent();
     }
@@ -77,15 +85,18 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper) : Cont
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAuction(Guid id)
     {
-        var auction = await context.Auctions.FindAsync(id);
+        var auction = await context.Auctions
+            // .Include(x => x.Product)
+            .FirstOrDefaultAsync(x => x.Id == id);
 
-        if (auction == null)
-        {
-            return NotFound();
-        }
+        if (auction == null) return NotFound();
 
-        context.Auctions.Remove(auction);
-        await context.SaveChangesAsync();
+        await publishEndpoint.Publish(mapper.Map<AuctionDeleted>(auction));
+
+        context.Remove(auction);
+
+        bool result = await context.SaveChangesAsync() > 0;
+        if (!result) return BadRequest("Failed to delete auction");
 
         return NoContent();
     }
