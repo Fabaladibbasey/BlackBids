@@ -12,6 +12,22 @@ public class DbInitializer
         SeedData(scope.ServiceProvider.GetService<AuctionDbContext>());
     }
 
+    private static readonly Random gen = new();
+
+    private static DateTime GetRandomCreatedDate()
+    {
+        DateTime start = DateTime.UtcNow.AddMinutes(-30);
+        int range = (int)(DateTime.UtcNow - start).TotalMinutes;
+        return start.AddMinutes(gen.Next(range + 1));
+    }
+
+    private static DateTime GetRandomEndDate()
+    {
+        DateTime start = DateTime.UtcNow;
+        int range = 40 + gen.Next(60 * 24 * 30);
+        return start.AddMinutes(range);
+    }
+
     private static async void SeedData(AuctionDbContext context)
     {
         await context.Database.MigrateAsync();
@@ -25,11 +41,12 @@ public class DbInitializer
         {
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.ReserveNotMet,
                 ReservePrice = 50000,
                 Seller = "tom",
-                AuctionEnd = DateTime.UtcNow.AddDays(-10),
+                AuctionEnd = DateTime.UtcNow.AddHours(3),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -37,20 +54,19 @@ public class DbInitializer
                     Description = "A guitar",
                     Brand = "Fender",
                     Type = "Electric",
-                    Condition = "New",
+                    Condition = "Second Hand",
                     Color = "Red",
-                    // take image from pixabay e.g. https://pixabay.com/photos/guitar-classical-guitar-acoustic-1209016/
-                    ImageUrl = "https://pixabay.com/photos/guitar-classical-guitar-acoustic-1209016/"
+                    ImageUrl = "https://cdn.pixabay.com/photo/2012/04/12/19/35/guitar-30315_1280.png"
                 }
             },
-            // 2 Ford GT
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.Live,
                 ReservePrice = 1000000,
                 Seller = "ali",
-                AuctionEnd = DateTime.UtcNow.AddDays(10),
+                AuctionEnd = GetRandomEndDate(),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -60,19 +76,17 @@ public class DbInitializer
                     Type = "Car",
                     Condition = "New",
                     Color = "Blue",
-                    // take image from pixabay e.g. https://pixabay.com/photos/ford-gt-2017-ford-gt-blue-automotive-2486097/
-                    ImageUrl = "https://pixabay.com/photos/ford-gt-2017-ford-gt-blue-automotive-2486097/"
+                    ImageUrl = "https://cdn.pixabay.com/photo/2024/08/07/08/41/sports-car-8951286_1280.png"
                 }
             },
-
-            // 3 Rolex Submariner
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.Live,
                 ReservePrice = 10000,
-                Seller = "tom",
-                AuctionEnd = DateTime.UtcNow.AddDays(10),
+                Seller = "bob",
+                AuctionEnd = GetRandomEndDate(),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -82,19 +96,17 @@ public class DbInitializer
                     Type = "Watch",
                     Condition = "New",
                     Color = "Black",
-                    // take image from pixabay e.g. https://pixabay.com/photos/rolex-submariner-watch-time-luxury-2593464/
-                    ImageUrl = "https://pixabay.com/photos/rolex-submariner-watch-time-luxury-2593464/"
+                    ImageUrl = "https://cdn.pixabay.com/photo/2013/07/12/15/50/ticker-150395_1280.png"
                 }
             },
-
-            // 4 Apple iPhone 12
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.Live,
                 ReservePrice = 1000,
                 Seller = "tom",
-                AuctionEnd = DateTime.UtcNow.AddDays(10),
+                AuctionEnd = GetRandomEndDate(),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -102,21 +114,19 @@ public class DbInitializer
                     Description = "A phone",
                     Brand = "Apple",
                     Type = "Phone",
-                    Condition = "New",
-                    Color = "Black",
-                    // take image from pixabay e.g. https://pixabay.com/photos/iphone-12-iphone-12-pro-iphone-12-5725727/
-                    ImageUrl = "https://pixabay.com/photos/iphone-12-iphone-12-pro-iphone-12-5725727/"
+                    Condition = "second hand",
+                    Color = "Green",
+                    ImageUrl = "https://cdn.pixabay.com/photo/2020/12/14/09/46/smartphone-5830473_1280.png"
                 }
             },
-
-            // 5 Apple MacBook Pro
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.Live,
                 ReservePrice = 2000,
                 Seller = "peter",
-                AuctionEnd = DateTime.UtcNow.AddDays(10),
+                AuctionEnd = GetRandomEndDate(),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -126,19 +136,17 @@ public class DbInitializer
                     Type = "Laptop",
                     Condition = "New",
                     Color = "Silver",
-                    // take image from pixabay e.g. https://pixabay.com/photos/macbook-pro-laptop-apple-macbook-1853306/
-                    ImageUrl = "https://pixabay.com/photos/macbook-pro-laptop-apple-macbook-1853306/"
+                    ImageUrl = "https://cdn.pixabay.com/photo/2019/07/21/21/32/laptop-4353711_1280.png"
                 }
             },
-
-            // 6 Mercedes SLK with reserve not met
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.ReserveNotMet,
                 ReservePrice = 10000,
                 Seller = "john",
-                AuctionEnd = DateTime.UtcNow.AddDays(-10),
+                AuctionEnd = DateTime.UtcNow.AddDays(-2),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -147,20 +155,18 @@ public class DbInitializer
                     Brand = "Mercedes",
                     Type = "Car",
                     Condition = "New",
-                    Color = "Silver",
-                    // take image from pixabay e.g. https://pixabay.com/photos/mercedes-slk-mercedes-benz-slk-230-1208271/
-                    ImageUrl = "https://pixabay.com/photos/mercedes-slk-mercedes-benz-slk-230-1208271/"
+                    Color = "Black",
+                    ImageUrl = "https://cdn.pixabay.com/photo/2013/07/12/13/21/daimler-146887_1280.png"
                 }
             },
-
-            // 7 house with finished auction created by bob
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.Finished,
                 ReservePrice = 1000000,
                 Seller = "bob",
-                AuctionEnd = DateTime.UtcNow.AddDays(-10),
+                AuctionEnd = DateTime.UtcNow.AddDays(-35),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -169,20 +175,18 @@ public class DbInitializer
                     Brand = "House",
                     Type = "House",
                     Condition = "New",
-                    Color = "White",
-                    // take image from pixabay e.g. https://pixabay.com/photos/house-home-property-residential-498271/
-                    ImageUrl = "https://pixabay.com/photos/house-home-property-residential-498271/"
+                    Color = "Cream",
+                    ImageUrl = "https://cdn.pixabay.com/photo/2016/06/01/17/43/house-1429409_1280.png"
                 }
             },
-
-            // 8 Ferrari F-430 live auction created by alice
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.Live,
                 ReservePrice = 1000000,
                 Seller = "alice",
-                AuctionEnd = DateTime.UtcNow.AddDays(10),
+                AuctionEnd = GetRandomEndDate(),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -192,19 +196,17 @@ public class DbInitializer
                     Type = "Car",
                     Condition = "New",
                     Color = "Red",
-                    // take image from pixabay e.g. https://pixabay.com/photos/ferrari-f-430-ferrari-f430-f430-1208270/
-                    ImageUrl = "https://pixabay.com/photos/ferrari-f-430-ferrari-f430-f430-1208270/"
+                    ImageUrl = "https://cdn.pixabay.com/photo/2014/03/24/17/17/racing-car-295307_1280.png"
                 }
             },
-
-            // 9 Rolex Submariner live auction created by alice
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.Live,
                 ReservePrice = 10000,
                 Seller = "alice",
-                AuctionEnd = DateTime.UtcNow.AddDays(10),
+                AuctionEnd = GetRandomEndDate(),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
@@ -213,31 +215,28 @@ public class DbInitializer
                     Brand = "Rolex",
                     Type = "Watch",
                     Condition = "New",
-                    Color = "Black",
-                    // take image from pixabay e.g. https://pixabay.com/photos/rolex-submariner-watch-time-luxury-2593464/
-                    ImageUrl = "https://pixabay.com/photos/rolex-submariner-watch-time-luxury-2593464/"
+                    Color = "Magneta",
+                    ImageUrl = "https://cdn.pixabay.com/photo/2012/04/26/18/44/watch-42803_1280.png"
                 }
             },
-
-            // 10 house live auction created by john
             new()
             {
+                CreatedAt = GetRandomCreatedDate(),
                 Id = Guid.NewGuid(),
                 Status = Status.Live,
                 ReservePrice = 1000000,
                 Seller = "john",
-                AuctionEnd = DateTime.UtcNow.AddDays(10),
+                AuctionEnd = GetRandomEndDate(),
                 Product = new Product
                 {
                     Id = Guid.NewGuid(),
-                    Name = "House",
+                    Name = "Pool House",
                     Description = "A house",
                     Brand = "House",
                     Type = "House",
                     Condition = "New",
-                    Color = "White",
-                    // take image from pixabay e.g. https://pixabay.com/photos/house-home-property-residential-498271/
-                    ImageUrl = "https://pixabay.com/photos/house-home-property-residential-498271/"
+                    Color = "Yellow",
+                    ImageUrl = "https://cdn.pixabay.com/photo/2019/06/13/19/10/pool-house-4272310_1280.jpg"
                 }
             },
 

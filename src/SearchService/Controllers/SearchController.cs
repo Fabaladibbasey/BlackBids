@@ -21,16 +21,16 @@ public class SearchController : ControllerBase
 
         query = searchParams.OrderBy switch
         {
-            "brand" => query.Sort(p => p.Ascending(p => p.Brand)),
+            "brand" => query.Sort(p => p.Ascending(p => p.Brand)).Sort(p => p.Ascending(p => p.Type)),
             "new" => query.Sort(p => p.Descending(p => p.CreatedAt)),
             _ => query.Sort(p => p.Ascending(p => p.AuctionEnd))
         };
 
         query = searchParams.FilterBy switch
         {
-            "finished" => query.Match(p => p.Status == Status.Finished.ToString()),
-            "endingSoon" => query.Match(p => p.AuctionEnd < DateTime.UtcNow.AddHours(6) && p.Status == Status.Live.ToString()),
-            _ => query.Match(p => p.Status == Status.Live.ToString())
+            "finished" => query.Match(p => p.AuctionEnd < DateTime.UtcNow),
+            "endingSoon" => query.Match(p => DateTime.UtcNow < p.AuctionEnd && p.AuctionEnd < DateTime.UtcNow.AddHours(6)),
+            _ => query.Match(p => DateTime.UtcNow < p.AuctionEnd)
         };
 
         if (!string.IsNullOrEmpty(searchParams.Seller))
@@ -50,7 +50,7 @@ public class SearchController : ControllerBase
 
         return Ok(new
         {
-            result = result.Results,
+            results = result.Results,
             pageCount = result.PageCount,
             totalCount = result.TotalCount
         });
