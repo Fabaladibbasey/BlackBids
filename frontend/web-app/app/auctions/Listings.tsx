@@ -9,7 +9,7 @@ import Filters from './Filters';
 import { useParamsStore } from '@/hooks/useParamsStore';
 import { shallow } from 'zustand/shallow';
 import qs from 'query-string';
-import EmptyFilter from '../components/EmptyFilter';
+import UnintendedResult from '../components/UnintendedResult';
 
 export default function Listings() {
     const [data, setData] = useState<PagedResult<Auction>>();
@@ -33,16 +33,13 @@ export default function Listings() {
         })
     }, [url])
 
-    
     if (!data) return <h3>Loading...</h3>
-    
-    console.log('data', data)
-    
+
     return (
         <>
             <Filters />
             {data.totalCount === 0 ? (
-                <EmptyFilter showReset />
+                <UnintendedResult showReset />
             ) : (
                 <>
                     <div className='grid w-full sm:grid-cols-2 xl:grid-cols-4 gap-6 place-self-center'>
