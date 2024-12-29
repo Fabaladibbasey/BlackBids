@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using IdentityModel;
+using Duende.IdentityModel;
 using IdentityService.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,7 +20,7 @@ namespace IdentityService.Pages.Account.Register
         }
 
         [BindProperty]
-        public RegisterViewModel Input { get; set; }
+        public RegisterViewModel Input { get; set; } = default!;
 
         [BindProperty]
         public bool RegisterSuccess { get; set; }
@@ -30,6 +30,10 @@ namespace IdentityService.Pages.Account.Register
             Input = new RegisterViewModel
             {
                 ReturnUrl = returnUrl,
+                Email = string.Empty,
+                Password = string.Empty,
+                Username = string.Empty,
+                FullName = string.Empty
             };
 
             return Page();

@@ -90,7 +90,6 @@ public class AuctionsController(AuctionDbContext context, IMapper mapper, IPubli
     public async Task<IActionResult> DeleteAuction(Guid id)
     {
         var auction = await context.Auctions
-            // .Include(x => x.Product)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (auction == null) return NotFound();
